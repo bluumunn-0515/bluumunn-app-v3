@@ -1,7 +1,27 @@
 
+
 import streamlit as st
 import pandas as pd
 import altair as alt
+import os
+
+# 한글 폰트 경로 설정
+FONT_URL = "../fonts/NanumGothic-Regular.ttf"
+
+# Streamlit에 한글 폰트 적용 (CSS)
+st.markdown(f"""
+    <style>
+    @font-face {{
+        font-family: 'NanumGothic';
+        src: url('{FONT_URL}') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }}
+    html, body, [class^='css'] {{
+        font-family: 'NanumGothic', sans-serif !important;
+    }}
+    </style>
+""", unsafe_allow_html=True)
 
 st.set_page_config(page_title="지역/학교별 자격증 취득 현황", page_icon="🏫", layout="wide")
 st.title("🏫 지역별·학교별 자격증 취득 현황 집계")
@@ -29,22 +49,40 @@ if selected_school != "전체":
 # 자격증별 취득자 수 (학교별)
 st.header("자격증별 취득자 수 (학교별)")
 school_cert_count = df.groupby(["학교", "자격증명"]).size().reset_index(name="취득자 수")
+
 chart1 = alt.Chart(school_cert_count).mark_bar().encode(
     x=alt.X("자격증명", sort="-y"),
     y="취득자 수",
     color="자격증명",
     column="학교"
+).configure_axis(
+    labelFont="NanumGothic",
+    titleFont="NanumGothic"
+).configure_legend(
+    labelFont="NanumGothic",
+    titleFont="NanumGothic"
+).configure_title(
+    font="NanumGothic"
 )
 st.altair_chart(chart1, use_container_width=True)
 
 # 지역별 자격증 취득자 수 집계
 st.header("지역별 자격증 취득자 수 집계")
 region_cert_count = df.groupby(["지역", "자격증명"]).size().reset_index(name="취득자 수")
+
 chart2 = alt.Chart(region_cert_count).mark_bar().encode(
     x=alt.X("자격증명", sort="-y"),
     y="취득자 수",
     color="지역",
     column="지역"
+).configure_axis(
+    labelFont="NanumGothic",
+    titleFont="NanumGothic"
+).configure_legend(
+    labelFont="NanumGothic",
+    titleFont="NanumGothic"
+).configure_title(
+    font="NanumGothic"
 )
 st.altair_chart(chart2, use_container_width=True)
 

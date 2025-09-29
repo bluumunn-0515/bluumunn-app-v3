@@ -1,10 +1,31 @@
 
 
 
+
 import streamlit as st
 import pandas as pd
 import altair as alt
 from datetime import date
+import os
+
+# 한글 폰트 경로 설정
+FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "NanumGothic-Regular.ttf")
+FONT_URL = "./fonts/NanumGothic-Regular.ttf"
+
+# Streamlit에 한글 폰트 적용 (CSS)
+st.markdown(f"""
+    <style>
+    @font-face {{
+        font-family: 'NanumGothic';
+        src: url('{FONT_URL}') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }}
+    html, body, [class^='css'] {{
+        font-family: 'NanumGothic', sans-serif !important;
+    }}
+    </style>
+""", unsafe_allow_html=True)
 
 st.set_page_config(page_title="자동차과 자격증 취득 현황 집계", page_icon="🚗", layout="wide")
 st.title("🚗 특성화고 자동차과 자격증 취득 현황 집계 프로그램")
@@ -63,29 +84,56 @@ st.header("자격증별 취득자 수 집계")
 if not st.session_state.cert_df.empty:
     cert_count = st.session_state.cert_df["자격증명"].value_counts().reset_index()
     cert_count.columns = ["자격증명", "취득자 수"]
+
     chart = alt.Chart(cert_count).mark_bar().encode(
         x=alt.X("자격증명", sort="-y"),
         y="취득자 수",
         color="자격증명"
+    ).configure_axis(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_legend(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_title(
+        font="NanumGothic"
     )
     st.altair_chart(chart, use_container_width=True)
 
     st.header("학년별 취득자 수 집계")
     grade_count = st.session_state.cert_df.groupby("학년").size().reset_index(name="취득자 수")
+
     chart2 = alt.Chart(grade_count).mark_bar().encode(
         x="학년:O",
         y="취득자 수:Q",
         color="학년:O"
+    ).configure_axis(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_legend(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_title(
+        font="NanumGothic"
     )
     st.altair_chart(chart2, use_container_width=True)
 
     st.header("반별 취득자 수 집계")
     class_count = st.session_state.cert_df.groupby(["학년", "반"]).size().reset_index(name="취득자 수")
+
     chart3 = alt.Chart(class_count).mark_bar().encode(
         x=alt.X("반:O"),
         y="취득자 수:Q",
         color="학년:O",
         column="학년:O"
+    ).configure_axis(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_legend(
+        labelFont="NanumGothic",
+        titleFont="NanumGothic"
+    ).configure_title(
+        font="NanumGothic"
     )
     st.altair_chart(chart3, use_container_width=True)
 
