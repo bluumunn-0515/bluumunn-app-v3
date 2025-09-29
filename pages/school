@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -6,49 +7,44 @@ st.set_page_config(page_title="지역/학교별 자격증 취득 현황", page_i
 st.title("🏫 지역별·학교별 자격증 취득 현황 집계")
 st.write("지역과 학교별로 학생들의 자격증 취득 현황을 집계하고 시각화합니다.")
 
-# 샘플 데이터 생성 (실제 데이터 연동 시 구조 참고)
-data = [
-	{"지역": "서울", "학교": "A고", "자격증명": "자동차정비기능사", "취득자 수": 12},
-	{"지역": "서울", "학교": "A고", "자격증명": "운전면허(1종)", "취득자 수": 8},
-	{"지역": "서울", "학교": "B고", "자격증명": "자동차정비기능사", "취득자 수": 10},
-	{"지역": "경기", "학교": "C고", "자격증명": "자동차정비기능사", "취득자 수": 15},
-	{"지역": "경기", "학교": "C고", "자격증명": "운전면허(2종)", "취득자 수": 7},
-	{"지역": "경기", "학교": "D고", "자격증명": "지게차운전기능사", "취득자 수": 5},
-	{"지역": "부산", "학교": "E고", "자격증명": "자동차정비기능사", "취득자 수": 9},
-	{"지역": "부산", "학교": "E고", "자격증명": "굴삭기운전기능사", "취득자 수": 4},
-]
-df = pd.DataFrame(data)
+# streamlit_app.py에서 입력된 데이터 연동
+if "cert_df" in st.session_state and not st.session_state.cert_df.empty:
+    df = st.session_state.cert_df.copy()
+else:
+    st.info("입력된 자격증 데이터가 없습니다. 메인 페이지에서 데이터를 먼저 입력하세요.")
+    st.stop()
 
 # 지역 선택
 regions = df["지역"].unique().tolist()
 selected_region = st.selectbox("지역 선택", ["전체"] + regions)
-
 if selected_region != "전체":
-	df = df[df["지역"] == selected_region]
+    df = df[df["지역"] == selected_region]
 
 # 학교 선택
 schools = df["학교"].unique().tolist()
 selected_school = st.selectbox("학교 선택", ["전체"] + schools)
-
 if selected_school != "전체":
-	df = df[df["학교"] == selected_school]
+    df = df[df["학교"] == selected_school]
 
+# 자격증별 취득자 수 (학교별)
 st.header("자격증별 취득자 수 (학교별)")
-chart1 = alt.Chart(df).mark_bar().encode(
-	x=alt.X("자격증명", sort="-y"),
-	y="취득자 수",
-	color="자격증명",
-	column="학교"
+school_cert_count = df.groupby(["학교", "자격증명"]).size().reset_index(name="취득자 수")
+chart1 = alt.Chart(school_cert_count).mark_bar().encode(
+    x=alt.X("자격증명", sort="-y"),
+    y="취득자 수",
+    color="자격증명",
+    column="학교"
 )
 st.altair_chart(chart1, use_container_width=True)
 
+# 지역별 자격증 취득자 수 집계
 st.header("지역별 자격증 취득자 수 집계")
-region_count = df.groupby(["지역", "자격증명"]).sum(numeric_only=True).reset_index()
-chart2 = alt.Chart(region_count).mark_bar().encode(
-	x=alt.X("자격증명", sort="-y"),
-	y="취득자 수",
-	color="지역",
-	column="지역"
+region_cert_count = df.groupby(["지역", "자격증명"]).size().reset_index(name="취득자 수")
+chart2 = alt.Chart(region_cert_count).mark_bar().encode(
+    x=alt.X("자격증명", sort="-y"),
+    y="취득자 수",
+    color="지역",
+    column="지역"
 )
 st.altair_chart(chart2, use_container_width=True)
 

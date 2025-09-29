@@ -1,5 +1,6 @@
 
 
+
 import streamlit as st
 import pandas as pd
 import altair as alt
@@ -9,10 +10,18 @@ st.set_page_config(page_title="자동차과 자격증 취득 현황 집계", pag
 st.title("🚗 특성화고 자동차과 자격증 취득 현황 집계 프로그램")
 st.write("학생들의 자격증 취득 현황을 입력하고, 집계 및 시각화할 수 있습니다.")
 
+# 지역/학교 목록 예시 (실제 환경에 맞게 수정 가능)
+region_list = ["서울", "경기", "부산"]
+school_dict = {
+    "서울": ["A고", "B고"],
+    "경기": ["C고", "D고"],
+    "부산": ["E고"]
+}
+
 # 데이터 초기화
 if "cert_df" not in st.session_state:
     st.session_state.cert_df = pd.DataFrame(columns=[
-        "이름", "학년", "반", "자격증명", "취득일"
+        "이름", "학년", "반", "자격증명", "취득일", "지역", "학교"
     ])
 
 # 입력 폼
@@ -22,6 +31,8 @@ with st.form("cert_form"):
         name = st.text_input("학생 이름")
         grade = st.selectbox("학년", [1, 2, 3])
         class_num = st.selectbox("반", [1, 2, 3, 4])
+        region = st.selectbox("지역", region_list)
+        school = st.selectbox("학교", school_dict[region])
     with col2:
         cert_name = st.selectbox("자격증명", [
             "자동차정비기능사", "운전면허(1종)", "운전면허(2종)", "전산응용기계제도기능사", "지게차운전기능사", "굴삭기운전기능사", "기타"
@@ -34,7 +45,9 @@ with st.form("cert_form"):
             "학년": grade,
             "반": class_num,
             "자격증명": cert_name,
-            "취득일": cert_date
+            "취득일": cert_date,
+            "지역": region,
+            "학교": school
         }
         st.session_state.cert_df = pd.concat([
             pd.DataFrame([new_row]), st.session_state.cert_df
